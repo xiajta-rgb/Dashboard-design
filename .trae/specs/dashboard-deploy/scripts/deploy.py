@@ -268,7 +268,7 @@ def upload_dist_directory():
         for file in files:
             local_path = Path(root) / file
             relative_path = local_path.relative_to(dist_dir)
-            remote_path = f'/home/desgin/Dashboard-design/dist/{relative_path}'
+            remote_path = f'/home/desgin/Dashboard-design/dist/{relative_path}'.replace('\\', '/')
 
             with open(local_path, 'rb') as f:
                 content = f.read()
