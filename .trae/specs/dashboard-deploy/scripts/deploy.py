@@ -285,11 +285,10 @@ def upload_dist_directory():
 def upload_file(remote_path, content):
     url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{remote_path}'
     try:
-        encoded_content = base64.b64encode(content).decode('utf-8')
         resp = requests.post(
             url,
             headers=HEADERS,
-            data={'content': encoded_content, 'encoding': 'base64'},
+            files={'content': content},
             timeout=60
         )
         if resp.status_code in [200, 201]:
