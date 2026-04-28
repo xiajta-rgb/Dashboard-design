@@ -289,7 +289,7 @@ def upload_file(remote_path, content):
         resp = requests.post(
             url,
             headers=HEADERS,
-            json={'content': encoded_content, 'encoding': 'base64'},
+            data={'content': encoded_content, 'encoding': 'base64'},
             timeout=60
         )
         if resp.status_code in [200, 201]:
