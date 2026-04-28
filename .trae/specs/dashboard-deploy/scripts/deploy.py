@@ -5,12 +5,15 @@ Dashboard Design Deploy - 部署到 PythonAnywhere
 仓库: git@github.com:xiajta-rgb/Dashboard-design.git
 
 自动执行完整部署流程，无需用户确认
+构建在本地完成后，直接上传 dist 目录到云端
 """
 
 import subprocess
 import time
 import requests
 import sys
+import json
+import base64
 from pathlib import Path
 
 USERNAME = 'desgin'
@@ -164,7 +167,7 @@ def step2_git_push():
 
 def step3_cloud_deploy():
     print("\n" + "="*50)
-    print("Step 3/4: Deploy to Cloud")
+    print("Step 3/4: Deploy to Cloud (Upload dist)")
     print("="*50)
 
     original_wsgi = backup_original_wsgi()
@@ -172,23 +175,20 @@ def step3_cloud_deploy():
         print("[X] WSGI backup failed")
         return False
 
-    if not replace_wsgi_with_clone_script(original_wsgi):
-        print("[X] WSGI replace failed")
+    if not clear_remote_directory():
+        print("[X] Failed to clear remote directory")
         return False
 
-    if not reload_webapp():
-        print("[!] Reload failed, but continuing...")
+    if not upload_dist_directory():
+        print("[X] Failed to upload dist directory")
         return False
-
-    print("[INFO] Waiting 60 seconds for clone and build to complete...")
-    time.sleep(60)
 
     if not upload_static_wsgi():
         print("[X] Failed to upload static file WSGI")
         return False
 
     if not reload_webapp():
-        print("[!] Second reload failed")
+        print("[!] Reload failed")
         return False
 
     print("[OK] Cloud deployment completed")
@@ -241,81 +241,64 @@ def backup_original_wsgi():
         print(f"[X] WSGI backup failed: {e}")
         return None
 
-def replace_wsgi_with_clone_script(original_wsgi_content):
-    temp_wsgi = f'''
-import subprocess
-import os
-
-try:
-    if os.path.exists("/home/desgin/Dashboard-design"):
-        result = subprocess.run(
-            "rm -rf Dashboard-design",
-            shell=True,
-            cwd="/home/desgin",
-            capture_output=True,
-            text=True,
-            timeout=30
-        )
-        with open("/home/desgin/deploy_log.txt", "w", encoding="utf-8") as f:
-            f.write(f"Step1 - Remove old dir\\n")
-            f.write(f"Return code: {{result.returncode}}\\n")
-            f.write(f"Stdout: {{result.stdout}}\\n")
-            f.write(f"Stderr: {{result.stderr}}\\n")
-
-    result = subprocess.run(
-        "git clone git@github.com:xiajta-rgb/Dashboard-design.git",
-        shell=True,
-        cwd="/home/desgin",
-        capture_output=True,
-        text=True,
-        timeout=120
-    )
-    with open("/home/desgin/deploy_log.txt", "a", encoding="utf-8") as f:
-        f.write(f"Step2 - Clone repo\\n")
-        f.write(f"Return code: {{result.returncode}}\\n")
-        f.write(f"Stdout: {{result.stdout}}\\n")
-        f.write(f"Stderr: {{result.stderr}}\\n")
-
-    result = subprocess.run(
-        "cd Dashboard-design && npm install && npm run build",
-        shell=True,
-        cwd="/home/desgin",
-        capture_output=True,
-        text=True,
-        timeout=180
-    )
-    with open("/home/desgin/deploy_log.txt", "a", encoding="utf-8") as f:
-        f.write(f"Step3 - Build\\n")
-        f.write(f"Return code: {{result.returncode}}\\n")
-        f.write(f"Stdout: {{result.stdout}}\\n")
-        f.write(f"Stderr: {{result.stderr}}\\n")
-    print("Deployment command completed")
-except Exception as e:
-    with open("/home/desgin/deploy_error.txt", "a", encoding="utf-8") as f:
-        f.write(f"Deployment failed: {{str(e)}}\\n")
-
-try:
-    with open("{WSGI_FILE_PATH}", "w", encoding="utf-8") as f:
-        f.write("""{original_wsgi_content}""")
-    print("Original WSGI restored")
-except Exception as e:
-    with open("/home/desgin/deploy_error.txt", "a", encoding="utf-8") as f:
-        f.write(f"WSGI restore failed: {{str(e)}}\\n")
-
-def application(environ, start_response):
-    status = "200 OK"
-    response_headers = [("Content-Type", "text/plain; charset=utf-8")]
-    start_response(status, response_headers)
-    return [b"Automated deployment triggered! Check /home/desgin/deploy_log.txt for details."]
-'''
-    url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{WSGI_FILE_PATH}'
+def clear_remote_directory():
+    print("[INFO] Clearing remote Dashboard-design directory...")
+    url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path/home/desgin/Dashboard-design/'
     try:
-        resp = requests.post(url, headers=HEADERS, files={'content': temp_wsgi}, timeout=15)
-        resp.raise_for_status()
-        print("[OK] Clone script WSGI uploaded")
-        return True
+        resp = requests.delete(url, headers=HEADERS, timeout=30)
+        if resp.status_code in [200, 204, 404]:
+            print("[OK] Remote directory cleared")
+            return True
+        else:
+            print(f"[X] Failed to clear directory: {resp.status_code}")
+            return False
     except Exception as e:
-        print(f"[X] WSGI replace failed: {e}")
+        print(f"[X] Failed to clear directory: {e}")
+        return False
+
+def upload_dist_directory():
+    print("[INFO] Uploading dist directory to remote...")
+    dist_dir = PROJECT_ROOT / "dist"
+
+    if not dist_dir.exists():
+        print(f"[X] Local dist directory not found: {dist_dir}")
+        return False
+
+    for root, dirs, files in os.walk(dist_dir):
+        for file in files:
+            local_path = Path(root) / file
+            relative_path = local_path.relative_to(dist_dir)
+            remote_path = f'/home/desgin/Dashboard-design/dist/{relative_path}'
+
+            with open(local_path, 'rb') as f:
+                content = f.read()
+
+            if not upload_file(remote_path, content):
+                print(f"[X] Failed to upload: {relative_path}")
+                return False
+
+            print(f"  Uploaded: {relative_path}")
+
+    print("[OK] All files uploaded")
+    return True
+
+def upload_file(remote_path, content):
+    url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{remote_path}'
+    try:
+        encoded_content = base64.b64encode(content).decode('utf-8')
+        resp = requests.post(
+            url,
+            headers=HEADERS,
+            json={'content': encoded_content, 'encoding': 'base64'},
+            timeout=60
+        )
+        if resp.status_code in [200, 201]:
+            return True
+        else:
+            print(f"Upload failed: {resp.status_code} - {resp.text}")
+            return False
+    except Exception as e:
+        print(f"Upload error: {e}")
         return False
 
 def upload_static_wsgi():
@@ -372,4 +355,5 @@ def main():
     print("#"*50)
 
 if __name__ == "__main__":
+    import os
     main()
