@@ -440,7 +440,9 @@ function App() {
             transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="h-full w-full"
           >
-            <ActiveDashboard />
+            <Suspense fallback={<div className="h-full w-full bg-neutral-900 flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" /></div>}>
+              <ActiveDashboard />
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </main>
