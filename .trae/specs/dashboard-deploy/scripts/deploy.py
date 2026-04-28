@@ -23,6 +23,78 @@ HEADERS = {'Authorization': f'Token {API_TOKEN}'}
 SCRIPT_DIR = Path(__file__).parent.resolve()
 PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent.parent
 
+STATIC_WSGI_CONTENT = '''#!/usr/bin/env python3
+"""
+Dashboard Design WSGI Configuration for PythonAnywhere
+"""
+
+import os
+import sys
+
+path = '/home/desgin/Dashboard-design'
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+dist_dir = '/home/desgin/Dashboard-design/dist'
+
+def application(environ, start_response):
+    path_info = environ.get('PATH_INFO', '/')
+
+    if path_info.startswith('/static/') or path_info.startswith('/assets/'):
+        static_path = path_info.lstrip('/')
+        file_path = os.path.join(dist_dir, static_path)
+
+        if os.path.isfile(file_path):
+            if file_path.endswith('.js'):
+                content_type = 'application/javascript'
+            elif file_path.endswith('.css'):
+                content_type = 'text/css'
+            elif file_path.endswith('.html'):
+                content_type = 'text/html'
+            elif file_path.endswith('.png'):
+                content_type = 'image/png'
+            elif file_path.endswith('.svg'):
+                content_type = 'image/svg+xml'
+            elif file_path.endswith('.json'):
+                content_type = 'application/json'
+            else:
+                content_type = 'application/octet-stream'
+
+            with open(file_path, 'rb') as f:
+                content = f.read()
+
+            status = '200 OK'
+            response_headers = [
+                ('Content-Type', content_type),
+                ('Content-Length', str(len(content)))
+            ]
+            start_response(status, response_headers)
+            return [content]
+        else:
+            status = '404 Not Found'
+            response_headers = [('Content-Type', 'text/plain')]
+            start_response(status, response_headers)
+            return [b'File not found']
+
+    index_path = os.path.join(dist_dir, 'index.html')
+    if os.path.isfile(index_path):
+        with open(index_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        status = '200 OK'
+        response_headers = [
+            ('Content-Type', 'text/html; charset=utf-8'),
+            ('Content-Length', str(len(content)))
+        ]
+        start_response(status, response_headers)
+        return [content.encode('utf-8')]
+    else:
+        status = '500 Internal Server Error'
+        response_headers = [('Content-Type', 'text/plain')]
+        start_response(status, response_headers)
+        return [b'index.html not found']
+'''
+
 def run_cmd(cmd, cwd=None, shell=True):
     cwd_str = str(cwd) if cwd else str(PROJECT_ROOT)
     result = subprocess.run(
@@ -100,7 +172,7 @@ def step3_cloud_deploy():
         print("[X] WSGI backup failed")
         return False
 
-    if not replace_wsgi_with_deploy_script(original_wsgi):
+    if not replace_wsgi_with_clone_script(original_wsgi):
         print("[X] WSGI replace failed")
         return False
 
@@ -108,11 +180,15 @@ def step3_cloud_deploy():
         print("[!] Reload failed, but continuing...")
         return False
 
-    print("[INFO] Waiting 60 seconds for deployment to complete...")
+    print("[INFO] Waiting 60 seconds for clone and build to complete...")
     time.sleep(60)
 
+    if not upload_static_wsgi():
+        print("[X] Failed to upload static file WSGI")
+        return False
+
     if not reload_webapp():
-        print("[!] Second reload failed, please check /home/desgin/deploy_log.txt")
+        print("[!] Second reload failed")
         return False
 
     print("[OK] Cloud deployment completed")
@@ -165,7 +241,7 @@ def backup_original_wsgi():
         print(f"[X] WSGI backup failed: {e}")
         return None
 
-def replace_wsgi_with_deploy_script(original_wsgi_content):
+def replace_wsgi_with_clone_script(original_wsgi_content):
     temp_wsgi = f'''
 import subprocess
 import os
@@ -236,10 +312,21 @@ def application(environ, start_response):
     try:
         resp = requests.post(url, headers=HEADERS, files={'content': temp_wsgi}, timeout=15)
         resp.raise_for_status()
-        print("[OK] Temp WSGI uploaded")
+        print("[OK] Clone script WSGI uploaded")
         return True
     except Exception as e:
         print(f"[X] WSGI replace failed: {e}")
+        return False
+
+def upload_static_wsgi():
+    url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{WSGI_FILE_PATH}'
+    try:
+        resp = requests.post(url, headers=HEADERS, files={'content': STATIC_WSGI_CONTENT}, timeout=15)
+        resp.raise_for_status()
+        print("[OK] Static file serving WSGI uploaded")
+        return True
+    except Exception as e:
+        print(f"[X] Static WSGI upload failed: {e}")
         return False
 
 def reload_webapp():
@@ -261,8 +348,6 @@ def main():
     print(f"# Domain: {WEBAPP_DOMAIN}")
     print(f"# Repo: git@github.com:xiajta-rgb/Dashboard-design.git")
     print("#"*50)
-
-    success = True
 
     if not step1_build():
         print("\n[X] Build failed, stopping deployment")
