@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   AreaChart,
   Area,
@@ -62,6 +63,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function DarkPremiumDashboard() {
   const [activeNav, setActiveNav] = useState('dashboard')
+  const { openLayoutLib } = useDashboard()
   const firstFourKpi = kpiData.slice(0, 4)
 
   return (
@@ -83,6 +85,7 @@ export default function DarkPremiumDashboard() {
               {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
                 <button
                   key={item}
+                  onClick={item === 'Settings' ? openLayoutLib : undefined}
                   className="px-3.5 py-1.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-[#1A1A2E] transition-all duration-200 cursor-pointer"
                 >
                   {item}
@@ -119,7 +122,7 @@ export default function DarkPremiumDashboard() {
                 return (
                   <button
                     key={item.key}
-                    onClick={() => setActiveNav(item.key)}
+                    onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                       isActive
                         ? 'bg-[#1A1A2E] text-white shadow-[0_0_15px_rgba(100,116,139,0.15)] border border-[#2A2A3E]'

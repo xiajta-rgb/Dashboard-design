@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -40,6 +41,7 @@ const sidebarItems = [
 const kpiIcons = [DollarSign, Users, Activity, Clock]
 
 export default function SwissDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -60,7 +62,7 @@ export default function SwissDashboard() {
             {sidebarItems.map(({ key, label, Icon }) => (
               <button
                 key={key}
-                onClick={() => setActiveNav(key)}
+                onClick={() => key === 'settings' ? openLayoutLib() : setActiveNav(key)}
                 className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors duration-150 cursor-pointer ${
                   activeNav === key
                     ? 'text-black bg-neutral-200'

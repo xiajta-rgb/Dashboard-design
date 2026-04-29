@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -42,6 +43,7 @@ const sidebarIcons = {
 const kpiIcons = [DollarSign, Users, Activity, Clock]
 
 export default function SketchDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -61,7 +63,7 @@ export default function SketchDashboard() {
             </span>
           </div>
           {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
-            <button key={item} className="text-sm font-medium text-gray-500 hover:text-gray-800 cursor-pointer transition-colors duration-150">
+            <button key={item} onClick={item === 'Settings' ? openLayoutLib : undefined} className="text-sm font-medium text-gray-500 hover:text-gray-800 cursor-pointer transition-colors duration-150">
               {item}
             </button>
           ))}
@@ -87,7 +89,7 @@ export default function SketchDashboard() {
               return (
                 <button
                   key={item.key}
-                  onClick={() => setActiveNav(item.key)}
+                  onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                   className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer ${
                     isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                   }`}

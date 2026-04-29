@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   DollarSign,
   Users,
@@ -65,6 +66,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function GradientDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('overview')
   const [activeSidebar, setActiveSidebar] = useState('dashboard')
 
@@ -93,7 +95,7 @@ export default function GradientDashboard() {
             return (
               <button
                 key={item.key}
-                onClick={() => setActiveSidebar(item.key)}
+                onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveSidebar(item.key)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'text-gray-800 bg-gray-100'
@@ -121,7 +123,7 @@ export default function GradientDashboard() {
             {['overview', 'analytics', 'users', 'reports', 'settings'].map((item) => (
               <button
                 key={item}
-                onClick={() => setActiveNav(item)}
+                onClick={() => item === 'settings' ? openLayoutLib() : setActiveNav(item)}
                 className={`relative pb-1 text-sm font-medium capitalize transition-colors duration-200 cursor-pointer ${
                   activeNav === item ? 'text-gray-900' : 'text-gray-400 hover:text-gray-600'
                 }`}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   AreaChart,
   Area,
@@ -42,6 +43,7 @@ const sidebarIcons = {
 const kpiIcons = [DollarSign, Users, Activity, Clock]
 
 export default function StripePremiumDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -59,7 +61,7 @@ export default function StripePremiumDashboard() {
           </div>
           <div className="flex items-center gap-1">
             {['Overview', 'Payments', 'Customers', 'Products', 'Settings'].map((item) => (
-              <button key={item} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors duration-150 cursor-pointer">
+              <button key={item} onClick={item === 'Settings' ? openLayoutLib : undefined} className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors duration-150 cursor-pointer">
                 {item}
               </button>
             ))}
@@ -94,7 +96,7 @@ export default function StripePremiumDashboard() {
               return (
                 <button
                   key={item.key}
-                  onClick={() => setActiveNav(item.key)}
+                  onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                   className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer"
                   style={{
                     color: isActive ? '#635BFF' : '#425466',

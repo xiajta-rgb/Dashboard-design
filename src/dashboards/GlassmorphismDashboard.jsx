@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   AreaChart,
   Area,
@@ -64,6 +65,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function GlassmorphismDashboard() {
   const [activeNav, setActiveNav] = useState('dashboard')
+  const { openLayoutLib } = useDashboard()
   const firstFourKpi = kpiData.slice(0, 4)
 
   return (
@@ -90,6 +92,7 @@ export default function GlassmorphismDashboard() {
               {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
                 <button
                   key={item}
+                  onClick={item === 'Settings' ? openLayoutLib : undefined}
                   className="px-3.5 py-1.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
                 >
                   {item}
@@ -126,7 +129,7 @@ export default function GlassmorphismDashboard() {
                 return (
                   <button
                     key={item.key}
-                    onClick={() => setActiveNav(item.key)}
+                    onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                       isActive
                         ? 'bg-white/15 text-white shadow-[0_4px_16px_rgba(100,116,139,0.2)] border border-white/20'

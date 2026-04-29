@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   AreaChart,
   Area,
@@ -47,6 +48,7 @@ const statusStyles = {
 }
 
 export default function SpatialDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -74,7 +76,7 @@ export default function SpatialDashboard() {
 
           <div className="flex items-center gap-6">
             {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
-              <button key={item} className="px-2 py-1 text-sm text-white/40 hover:text-white/70 transition-colors duration-200 cursor-pointer">
+              <button key={item} onClick={item === 'Settings' ? openLayoutLib : undefined} className="px-2 py-1 text-sm text-white/40 hover:text-white/70 transition-colors duration-200 cursor-pointer">
                 {item}
               </button>
             ))}
@@ -116,7 +118,7 @@ export default function SpatialDashboard() {
                 return (
                   <button
                     key={item.key}
-                    onClick={() => setActiveNav(item.key)}
+                    onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                     className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                       isActive
                         ? 'text-white'

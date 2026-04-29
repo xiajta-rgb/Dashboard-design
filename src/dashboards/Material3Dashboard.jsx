@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -57,6 +58,7 @@ const m3Colors = {
 }
 
 export default function Material3Dashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -92,7 +94,7 @@ export default function Material3Dashboard() {
             return (
               <button
                 key={item.key}
-                onClick={() => setActiveNav(item.key)}
+                onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                 className="w-14 py-2 rounded-2xl flex flex-col items-center gap-1 transition-all duration-200 cursor-pointer"
                 style={{
                   background: isActive ? m3Colors.secondaryContainer : 'transparent',
@@ -114,6 +116,7 @@ export default function Material3Dashboard() {
             {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item, i) => (
               <button
                 key={item}
+                onClick={item === 'Settings' ? openLayoutLib : undefined}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
                   i === 0 ? 'border' : ''
                 }`}

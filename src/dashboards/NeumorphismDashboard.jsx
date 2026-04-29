@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -306,6 +307,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 export default function NeumorphismDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeSidebar, setActiveSidebar] = useState('dashboard')
   const [searchFocused, setSearchFocused] = useState(false)
 
@@ -498,7 +500,7 @@ export default function NeumorphismDashboard() {
               key={item.key}
               item={item}
               active={activeSidebar === item.key}
-              onClick={setActiveSidebar}
+              onClick={(key) => key === 'settings' ? openLayoutLib() : setActiveSidebar(key)}
             />
           ))}
 

@@ -66,4 +66,5 @@ export const styles = [
   { id: 'dark-premium', label: 'Dark Premium', description: 'Deep blacks, neon accents, glowing data' },
   { id: 'gradient', label: 'Gradient Vibrant', description: 'Bold gradients, flowing color, dynamic energy' },
   { id: 'minimal', label: 'Minimal Clean', description: 'Pure whitespace, restrained elegance, clarity' },
+  { id: 'diffusion', label: 'Diffusion Light', description: 'Soft scattered light, gentle glow, ethereal atmosphere' },
 ]

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   AreaChart,
   Area,
@@ -127,6 +128,7 @@ function KpiCard({ kpi, index }) {
 }
 
 export default function BentoDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('overview')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -149,7 +151,7 @@ export default function BentoDashboard() {
             {navItems.map((item) => (
               <button
                 key={item.key}
-                onClick={() => setActiveNav(item.key)}
+                onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 cursor-pointer ${
                   activeNav === item.key
                     ? 'bg-indigo-600 text-white'

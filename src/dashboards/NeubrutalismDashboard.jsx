@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -56,6 +57,7 @@ const brutalShadow = '4px 4px 0px #000'
 const brutalShadowHover = '6px 6px 0px #000'
 
 export default function NeubrutalismDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -67,7 +69,7 @@ export default function NeubrutalismDashboard() {
             BRUTAL
           </div>
           {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
-            <button key={item} className="text-sm font-bold text-black hover:underline cursor-pointer">
+            <button key={item} onClick={item === 'Settings' ? openLayoutLib : undefined} className="text-sm font-bold text-black hover:underline cursor-pointer">
               {item}
             </button>
           ))}
@@ -93,7 +95,7 @@ export default function NeubrutalismDashboard() {
               return (
                 <button
                   key={item.key}
-                  onClick={() => setActiveNav(item.key)}
+                  onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                   className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all duration-150 cursor-pointer border-2 border-black"
                   style={{
                     background: isActive ? '#FFD600' : '#fff',

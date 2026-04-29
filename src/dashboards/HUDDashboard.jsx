@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -70,6 +71,7 @@ function StatusDot({ status }) {
 }
 
 export default function HUDDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('systems')
 
   return (
@@ -115,7 +117,7 @@ export default function HUDDashboard() {
           {sidebarItems.map(({ key, label, Icon }) => (
             <button
               key={key}
-              onClick={() => setActiveNav(key)}
+              onClick={() => key === 'settings' ? openLayoutLib() : setActiveNav(key)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px',
                 background: activeNav === key ? 'rgba(0,212,255,0.1)' : 'transparent',

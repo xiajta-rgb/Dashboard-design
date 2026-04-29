@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -108,6 +109,7 @@ const tooltipStyle = {
 }
 
 export default function ClaymorphismDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('dashboard')
 
   return (
@@ -126,7 +128,7 @@ export default function ClaymorphismDashboard() {
           {sidebarItems.slice(0, 4).map((item) => (
             <button
               key={item.key}
-              onClick={() => setActiveNav(item.key)}
+              onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
               style={{
                 background: 'none', border: 'none', padding: '4px 10px',
                 fontSize: '0.8rem', cursor: 'pointer',

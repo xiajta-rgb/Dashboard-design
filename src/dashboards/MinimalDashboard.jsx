@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useDashboard } from '../context/DashboardContext'
 import {
   LineChart,
   Line,
@@ -37,6 +38,7 @@ const BarTooltip = ({ active, payload, label }) => {
 }
 
 export default function MinimalDashboard() {
+  const { openLayoutLib } = useDashboard()
   const [activeNav, setActiveNav] = useState('overview')
 
   const kpis = kpiData.slice(0, 4)
@@ -52,7 +54,7 @@ export default function MinimalDashboard() {
             {navItems.map((item) => (
               <button
                 key={item.key}
-                onClick={() => setActiveNav(item.key)}
+                onClick={() => item.key === 'settings' ? openLayoutLib() : setActiveNav(item.key)}
                 className={`text-xs tracking-wide transition-opacity duration-150 ${
                   activeNav === item.key
                     ? 'text-gray-900 opacity-100'
