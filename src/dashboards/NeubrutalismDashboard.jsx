@@ -16,30 +16,16 @@ import {
   Users,
   Activity,
   Clock,
-  TrendingUp,
-  TrendingDown,
   LayoutDashboard,
-  BarChart3,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
   Download,
   Filter,
 } from 'lucide-react'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const BRUTAL_COLORS = {
   yellow: { bg: '#FFD600', text: '#000', border: '#000' },

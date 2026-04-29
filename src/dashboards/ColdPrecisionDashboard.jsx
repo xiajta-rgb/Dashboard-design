@@ -1,15 +1,19 @@
 import { useState, useRef, useEffect } from 'react'
 import { useDashboard } from '../context/DashboardContext'
 import {
-  LayoutDashboard, BarChart3, Users as UsersIcon, Package, ShoppingCart, MessageSquare, Settings,
-  Search, Bell, TrendingUp, TrendingDown, Filter, Ruler, Target, Zap,
+  LayoutDashboard,
+  Search,
+  Bell,
+  TrendingUp,
+  TrendingDown,
+  Filter,
+  Ruler,
+  Target,
+  Zap,
 } from 'lucide-react'
-import { sidebarItems } from '../data/mockData'
+import { sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard, analytics: BarChart3, customers: UsersIcon,
-  products: Package, orders: ShoppingCart, messages: MessageSquare, settings: Settings,
-}
+
 
 export default function ColdPrecisionDashboard() {
   const { openLayoutLib } = useDashboard()

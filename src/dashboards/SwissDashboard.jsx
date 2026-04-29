@@ -16,8 +16,6 @@ import {
   Users,
   Activity,
   Clock,
-  TrendingUp,
-  TrendingDown,
   LayoutDashboard,
   BarChart3,
   Package,

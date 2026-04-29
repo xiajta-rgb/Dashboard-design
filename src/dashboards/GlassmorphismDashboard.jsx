@@ -13,11 +13,7 @@ import {
 } from 'recharts'
 import {
   LayoutDashboard,
-  BarChart3,
   Users,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
@@ -29,17 +25,9 @@ import {
   Filter,
   MoreHorizontal,
 } from 'lucide-react'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const glassCard = 'bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]'
 

@@ -12,34 +12,20 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import {
-  DollarSign,
   Users,
   Activity,
-  Clock,
   TrendingUp,
   TrendingDown,
   LayoutDashboard,
-  BarChart3,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
   Download,
   Filter,
 } from 'lucide-react'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const statusStyles = {
   Active: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',

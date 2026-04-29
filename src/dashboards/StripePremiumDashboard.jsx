@@ -16,29 +16,15 @@ import {
   Users,
   Activity,
   Clock,
-  TrendingUp,
-  TrendingDown,
   LayoutDashboard,
-  BarChart3,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
   ChevronRight,
 } from 'lucide-react'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const kpiIcons = [DollarSign, Users, Activity, Clock]
 

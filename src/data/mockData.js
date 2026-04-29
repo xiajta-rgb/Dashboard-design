@@ -1,3 +1,15 @@
+import { LayoutDashboard, BarChart3, Users, Package, ShoppingCart, MessageSquare, Settings } from 'lucide-react'
+
+export const sidebarIcons = {
+  dashboard: LayoutDashboard,
+  analytics: BarChart3,
+  customers: Users,
+  products: Package,
+  orders: ShoppingCart,
+  messages: MessageSquare,
+  settings: Settings,
+}
+
 export const kpiData = [
   { title: 'Total Revenue', value: '$48,295', change: '+12.5%', trend: 'up' },
   { title: 'Active Users', value: '24,589', change: '+8.2%', trend: 'up' },
@@ -57,14 +69,4 @@ export const sidebarItems = [
   { label: 'Orders', key: 'orders' },
   { label: 'Messages', key: 'messages' },
   { label: 'Settings', key: 'settings' },
-]
-
-export const styles = [
-  { id: 'glassmorphism', label: 'Glassmorphism', description: 'Frosted glass, translucent layers, depth through blur' },
-  { id: 'bento', label: 'Bento Grid', description: 'Modular asymmetric grid, spatial hierarchy' },
-  { id: 'neumorphism', label: 'Neumorphism', description: 'Soft UI, extruded elements, tactile depth' },
-  { id: 'dark-premium', label: 'Dark Premium', description: 'Deep blacks, neon accents, glowing data' },
-  { id: 'gradient', label: 'Gradient Vibrant', description: 'Bold gradients, flowing color, dynamic energy' },
-  { id: 'minimal', label: 'Minimal Clean', description: 'Pure whitespace, restrained elegance, clarity' },
-  { id: 'diffusion', label: 'Diffusion Light', description: 'Soft scattered light, gentle glow, ethereal atmosphere' },
 ]

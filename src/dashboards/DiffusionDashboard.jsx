@@ -1,18 +1,10 @@
 import { useState } from 'react'
 import { useDashboard } from '../context/DashboardContext'
 import {
-  DollarSign,
   Users,
-  Activity,
-  Clock,
   TrendingUp,
   TrendingDown,
   LayoutDashboard,
-  BarChart3,
-  Users as UsersIcon,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
@@ -20,17 +12,9 @@ import {
   ChevronDown,
   MoreVertical,
 } from 'lucide-react'
-import { kpiData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: UsersIcon,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 export default function DiffusionDashboard() {
   const { openLayoutLib } = useDashboard()

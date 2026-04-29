@@ -20,7 +20,6 @@ import {
   Terminal,
   Settings,
   Search,
-  Bell,
   Download,
   Filter,
 } from 'lucide-react'

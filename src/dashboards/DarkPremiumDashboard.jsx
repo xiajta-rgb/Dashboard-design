@@ -13,11 +13,7 @@ import {
 } from 'recharts'
 import {
   LayoutDashboard,
-  BarChart3,
   Users,
-  Package,
-  ShoppingCart,
-  MessageSquare,
   Settings,
   Search,
   Bell,
@@ -29,17 +25,9 @@ import {
   Filter,
   MoreHorizontal,
 } from 'lucide-react'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const statusStyles = {
   Active: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',

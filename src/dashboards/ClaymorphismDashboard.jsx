@@ -16,14 +16,6 @@ import {
   Users,
   Activity,
   Clock,
-  TrendingUp,
-  TrendingDown,
-  LayoutDashboard,
-  BarChart3,
-  Package,
-  ShoppingCart,
-  MessageSquare,
-  Settings,
   Search,
   Bell,
   Download,
@@ -31,15 +23,7 @@ import {
 } from 'lucide-react'
 import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
 
-const sidebarIcons = {
-  dashboard: LayoutDashboard,
-  analytics: BarChart3,
-  customers: Users,
-  products: Package,
-  orders: ShoppingCart,
-  messages: MessageSquare,
-  settings: Settings,
-}
+
 
 const BG = '#F5F0EB'
 const CARD_BG = '#FAF7F2'

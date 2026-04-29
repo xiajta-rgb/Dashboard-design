@@ -7,17 +7,11 @@ import {
   Clock,
   TrendingUp,
   TrendingDown,
-  BarChart3,
   Activity,
   Bell,
   Search,
   LayoutDashboard,
-  PieChart,
-  ShoppingBag,
-  MessageSquare,
-  Settings,
   LogOut,
-  Plus,
   Download,
   Filter,
 } from 'lucide-react'
@@ -32,7 +26,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-import { kpiData, chartData, barChartData, tableData, sidebarItems } from '../data/mockData'
+import { kpiData, chartData, barChartData, tableData, sidebarItems, sidebarIcons } from '../data/mockData'
 
 const gradientAccents = [
   { from: '#2563eb', to: '#1d4ed8', label: 'blue' },
@@ -43,7 +37,7 @@ const gradientAccents = [
 
 const kpiIcons = [DollarSign, Users, Target, Clock]
 
-const sidebarIcons = [LayoutDashboard, PieChart, Users, ShoppingBag, BarChart3, MessageSquare, Settings]
+
 
 const statusBadgeStyles = {
   Active: 'bg-emerald-100 text-emerald-700',
@@ -90,7 +84,7 @@ export default function GradientDashboard() {
 
         <nav className="flex-1 py-4 px-3 space-y-1">
           {sidebarItems.map((item, i) => {
-            const Icon = sidebarIcons[i] || LayoutDashboard
+            const Icon = sidebarIcons[item.key] || LayoutDashboard
             const isActive = activeSidebar === item.key
             return (
               <button
