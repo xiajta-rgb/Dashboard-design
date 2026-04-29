@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useDashboard } from '../context/DashboardContext'
 import {
   LayoutDashboard, BarChart3, Users as UsersIcon, Package, ShoppingCart, MessageSquare, Settings,
-  Search, Bell, TrendingUp, TrendingDown, Filter,
+  Search, Bell, TrendingUp, TrendingDown, Filter, ZoomIn, ZoomOut, RotateCcw,
 } from 'lucide-react'
 import { sidebarItems } from '../data/mockData'
 
@@ -14,6 +14,67 @@ const sidebarIcons = {
 export default function MicroscopicTextureDashboard() {
   const { openLayoutLib } = useDashboard()
   const [activeSidebar, setActiveSidebar] = useState('dashboard')
+  const [zoom, setZoom] = useState(5000)
+  const [selectedPhase, setSelectedPhase] = useState('all')
+  const [hoveredGrain, setHoveredGrain] = useState(null)
+  const canvasRef = useRef(null)
+
+  const grainData = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    x: 40 + (i % 6) * 85 + Math.random() * 20,
+    y: 30 + Math.floor(i / 6) * 65 + Math.random() * 15,
+    size: 15 + Math.random() * 20,
+    orientation: Math.random() * 360,
+    phase: ['Austenite', 'Ferrite', 'Pearlite', 'Carbide'][Math.floor(Math.random() * 4)],
+    misorientation: (Math.random() * 15).toFixed(1)
+  }))
+
+  const edsData = [
+    { element: 'Fe Kα', intensity: 85.2, color: '#5a4a3a' },
+    { element: 'Cr Kα', intensity: 18.7, color: '#8a7a6a' },
+    { element: 'Ni Kα', intensity: 12.4, color: '#b0a898' },
+    { element: 'Mo Kα', intensity: 3.2, color: '#d4cbb8' },
+    { element: 'Mn Kα', intensity: 1.8, color: '#e0dcd4' }
+  ]
+
+  const phaseColors = {
+    'Austenite': '#5a4a3a',
+    'Ferrite': '#8a7a6a',
+    'Pearlite': '#b0a898',
+    'Carbide': '#d4cbb8'
+  }
+
+  const filteredGrains = selectedPhase === 'all' ? grainData : grainData.filter(g => g.phase === selectedPhase)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+    filteredGrains.forEach(grain => {
+      ctx.save()
+      ctx.translate(grain.x, grain.y)
+      ctx.rotate(grain.orientation * Math.PI / 180)
+      
+      ctx.beginPath()
+      const sides = 6
+      for (let i = 0; i < sides; i++) {
+        const angle = (i / sides) * Math.PI * 2
+        const x = Math.cos(angle) * grain.size
+        const y = Math.sin(angle) * grain.size
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+      }
+      ctx.closePath()
+      ctx.fillStyle = hoveredGrain === grain.id ? phaseColors[grain.phase] + 'cc' : phaseColors[grain.phase] + '40'
+      ctx.fill()
+      ctx.strokeStyle = phaseColors[grain.phase]
+      ctx.lineWidth = 1
+      ctx.stroke()
+      
+      ctx.restore()
+    })
+  }, [filteredGrains, hoveredGrain])
 
   return (
     <div className="w-full h-screen overflow-hidden font-sans flex" style={{ background: '#f8f6f2' }}>
@@ -41,6 +102,11 @@ export default function MicroscopicTextureDashboard() {
         <header className="flex items-center justify-between px-6 py-3 bg-white" style={{ borderBottom: '1px solid #e0dcd4' }}>
           <h2 className="text-sm font-bold text-[#5a4a3a]">Microstructure Analysis</h2>
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 px-2 py-1 bg-[#f8f6f2] rounded" style={{ border: '1px solid #e0dcd4' }}>
+              <ZoomOut className="w-3 h-3 text-[#b0a898]" />
+              <span className="text-xs font-mono text-[#5a4a3a]">{zoom}×</span>
+              <ZoomIn className="w-3 h-3 text-[#b0a898]" />
+            </div>
             <div className="relative"><Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#b0a898]" /><input type="text" placeholder="Search samples..." className="pl-8 pr-3 py-1.5 text-xs bg-[#f8f6f2] border border-[#e0dcd4] text-[#5a4a3a] focus:outline-none w-36" /></div>
             <button className="p-1.5 text-[#b0a898] cursor-pointer"><Bell className="w-3.5 h-3.5" /></button>
           </div>
@@ -66,8 +132,66 @@ export default function MicroscopicTextureDashboard() {
 
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div className="col-span-2 p-5 bg-white" style={{ border: '1px solid #e0dcd4' }}>
-              <h3 className="text-[10px] text-[#b0a898] mb-4 uppercase tracking-wider">Grain Size Distribution</h3>
-              <div className="h-40 flex items-end justify-between gap-1">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[10px] text-[#b0a898] uppercase tracking-wider">Figure A. Grain Boundary Map</h3>
+                <div className="flex items-center gap-2">
+                  <select 
+                    value={selectedPhase}
+                    onChange={(e) => setSelectedPhase(e.target.value)}
+                    className="text-xs px-2 py-1 bg-[#f8f6f2] border border-[#e0dcd4] text-[#5a4a3a] rounded"
+                  >
+                    <option value="all">All Phases</option>
+                    <option value="Austenite">Austenite</option>
+                    <option value="Ferrite">Ferrite</option>
+                    <option value="Pearlite">Pearlite</option>
+                    <option value="Carbide">Carbide</option>
+                  </select>
+                  <button className="p-1 text-[#b0a898] cursor-pointer"><RotateCcw className="w-3 h-3" /></button>
+                </div>
+              </div>
+              <canvas 
+                ref={canvasRef} 
+                width={520} 
+                height={280} 
+                className="w-full bg-[#faf8f4] rounded"
+                style={{ border: '1px solid #e0dcd4' }}
+              />
+              <div className="flex items-center gap-4 mt-3">
+                {Object.entries(phaseColors).map(([phase, color]) => (
+                  <div key={phase} className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-sm" style={{ background: color }} />
+                    <span className="text-[9px] text-[#b0a898]">{phase}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="p-5 bg-white" style={{ border: '1px solid #e0dcd4' }}>
+              <h3 className="text-[10px] text-[#b0a898] mb-4 uppercase tracking-wider">Figure B. EDS Analysis</h3>
+              <div className="space-y-3">
+                {edsData.map((el, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between text-[9px] mb-0.5" style={{ color: '#b0a898' }}>
+                      <span>{el.element}</span>
+                      <span style={{ color: el.color }}>{el.intensity}%</span>
+                    </div>
+                    <div className="h-1.5" style={{ background: '#f0ece4' }}>
+                      <div className="h-1.5" style={{ width: `${el.intensity}%`, background: el.color }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-2 bg-[#f8f6f2] rounded" style={{ border: '1px solid #e0dcd4' }}>
+                <p className="text-[8px] text-[#b0a898] mb-1">Composition</p>
+                <p className="text-xs font-mono text-[#5a4a3a]">Fe-18Cr-12Ni-3Mo</p>
+                <p className="text-[8px] text-[#b0a898] mt-1">AISI 316L Stainless Steel</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="p-5 bg-white" style={{ border: '1px solid #e0dcd4' }}>
+              <h3 className="text-[10px] text-[#b0a898] mb-4 uppercase tracking-wider">Figure C. Grain Size Distribution</h3>
+              <div className="h-32 flex items-end justify-between gap-1">
                 {[35,52,41,67,55,73,62,81,70,88,75,95].map((h, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full" style={{ height: `${h}%`, background: '#5a4a3a', opacity: 0.3 + (i * 0.05) }} />
@@ -75,22 +199,19 @@ export default function MicroscopicTextureDashboard() {
                   </div>
                 ))}
               </div>
+              <p className="text-[8px] text-[#b0a898] mt-2 text-center">Grain Diameter (μm)</p>
             </div>
             <div className="p-5 bg-white" style={{ border: '1px solid #e0dcd4' }}>
-              <h3 className="text-[10px] text-[#b0a898] mb-4 uppercase tracking-wider">Phase Analysis</h3>
-              <div className="space-y-3">
-                {[
-                  { name: 'Austenite', pct: 65, color: '#5a4a3a' },
-                  { name: 'Ferrite', pct: 25, color: '#8a7a6a' },
-                  { name: 'Pearlite', pct: 8, color: '#b0a898' },
-                  { name: 'Carbide', pct: 2, color: '#d4cbb8' },
-                ].map((p, i) => (
-                  <div key={i}>
-                    <div className="flex justify-between text-[9px] mb-0.5" style={{ color: '#b0a898' }}><span>{p.name}</span><span style={{ color: p.color }}>{p.pct}%</span></div>
-                    <div className="h-0.5" style={{ background: '#f0ece4' }}><div className="h-0.5" style={{ width: `${p.pct}%`, background: p.color }} /></div>
-                  </div>
+              <h3 className="text-[10px] text-[#b0a898] mb-4 uppercase tracking-wider">Figure D. Misorientation Distribution</h3>
+              <svg viewBox="0 0 200 100" className="w-full h-full">
+                {[0, 20, 40, 60, 80].map(y => (
+                  <line key={y} x1="20" y1={y} x2="180" y2={y} stroke="#e0dcd4" strokeWidth="0.5" />
                 ))}
-              </div>
+                <path d="M20,90 Q40,85 60,70 Q80,50 100,40 Q120,35 140,50 Q160,70 180,85" fill="none" stroke="#5a4a3a" strokeWidth="1.5" />
+                <line x1="60" y1="70" x2="60" y2="100" stroke="#5a4a3a" strokeWidth="0.5" strokeDasharray="2,2" />
+                <text x="60" y="98" textAnchor="middle" fill="#b0a898" fontSize="6">θ=15°</text>
+                <text x="100" y="95" textAnchor="middle" fill="#b0a898" fontSize="6">Misorientation (°)</text>
+              </svg>
             </div>
           </div>
 
