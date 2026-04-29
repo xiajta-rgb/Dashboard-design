@@ -282,45 +282,75 @@ def upload_dist_directory():
     print("[OK] All files uploaded")
     return True
 
-def upload_file(remote_path, content):
+def upload_file(remote_path, content, retries=3, delay=5):
     url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{remote_path}'
-    try:
-        resp = requests.post(
-            url,
-            headers=HEADERS,
-            files={'content': content},
-            timeout=60
-        )
-        if resp.status_code in [200, 201]:
-            return True
-        else:
-            print(f"Upload failed: {resp.status_code} - {resp.text}")
+    for attempt in range(retries):
+        try:
+            resp = requests.post(
+                url,
+                headers=HEADERS,
+                files={'content': content},
+                timeout=60
+            )
+            if resp.status_code == 429:
+                wait_time = delay * (attempt + 1)
+                print(f"  Rate limited, waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+                continue
+            if resp.status_code in [200, 201]:
+                return True
+            else:
+                print(f"Upload failed: {resp.status_code} - {resp.text}")
+                return False
+        except Exception as e:
+            print(f"Upload error: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+                continue
             return False
-    except Exception as e:
-        print(f"Upload error: {e}")
-        return False
+    return False
 
-def upload_static_wsgi():
+def upload_static_wsgi(retries=3, delay=5):
     url = f'https://{HOST}/api/v0/user/{USERNAME}/files/path{WSGI_FILE_PATH}'
-    try:
-        resp = requests.post(url, headers=HEADERS, files={'content': STATIC_WSGI_CONTENT}, timeout=15)
-        resp.raise_for_status()
-        print("[OK] Static file serving WSGI uploaded")
-        return True
-    except Exception as e:
-        print(f"[X] Static WSGI upload failed: {e}")
-        return False
+    for attempt in range(retries):
+        try:
+            resp = requests.post(url, headers=HEADERS, files={'content': STATIC_WSGI_CONTENT}, timeout=15)
+            if resp.status_code == 429:
+                wait_time = delay * (attempt + 1)
+                print(f"  Rate limited, waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+                continue
+            resp.raise_for_status()
+            print("[OK] Static file serving WSGI uploaded")
+            return True
+        except Exception as e:
+            print(f"[X] Static WSGI upload failed: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+                continue
+            return False
+    return False
 
-def reload_webapp():
+def reload_webapp(retries=3, delay=5):
     url = f'https://{HOST}/api/v0/user/{USERNAME}/webapps/{WEBAPP_DOMAIN}/reload/'
-    try:
-        resp = requests.post(url, headers=HEADERS, timeout=90)
-        resp.raise_for_status()
-        print("[OK] Web App reload successful!")
-        return True
-    except Exception as e:
-        print(f"[X] Web App reload failed: {e}")
-        return False
+    for attempt in range(retries):
+        try:
+            resp = requests.post(url, headers=HEADERS, timeout=90)
+            if resp.status_code == 429:
+                wait_time = delay * (attempt + 1)
+                print(f"  Rate limited, waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+                continue
+            resp.raise_for_status()
+            print("[OK] Web App reload successful!")
+            return True
+        except Exception as e:
+            print(f"[X] Web App reload failed: {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+                continue
+            return False
+    return False
 
 def main():
     print("\n" + "#"*50)
