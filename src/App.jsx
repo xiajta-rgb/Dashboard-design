@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ChevronLeft, PanelRightOpen, PanelRightClose, LayoutGrid } from 'lucide-react'
 import { DashboardProvider } from './context/DashboardContext'
 import { styles, groupedStyles, getDashboardComponent } from './dashboards'
+import { webPages, webPageGroups, groupedWebPages, getWebPageComponent } from './webPages'
 import HomePage from './components/HomePage'
 import StyleListModal from './components/StyleListModal'
 import LayoutLibraryPanel from './components/LayoutLibraryPanel'
@@ -11,22 +12,28 @@ import StyleSpecsPanel from './components/StyleSpecsPanel'
 
 function App() {
   const [activeStyle, setActiveStyle] = useState(null)
+  const [activeWebPage, setActiveWebPage] = useState(null)
   const [showSpecs, setShowSpecs] = useState(false)
   const [showLayoutLib, setShowLayoutLib] = useState(false)
   const prefersReducedMotion = useReducedMotion()
   const mainRef = useRef(null)
 
   const ActiveDashboard = activeStyle ? getDashboardComponent(activeStyle) : null
+  const ActiveWebPage = activeWebPage ? getWebPageComponent(activeWebPage) : null
   const activeStyleData = styles.find(s => s.id === activeStyle)
+  const activeWebPageData = webPages.find(p => p.id === activeWebPage)
+
+  const isViewingSomething = activeStyle || activeWebPage
 
   const handleBack = useCallback(() => {
     setActiveStyle(null)
+    setActiveWebPage(null)
     setShowSpecs(false)
     setShowLayoutLib(false)
   }, [])
 
   useEffect(() => {
-    if (!activeStyle) return
+    if (!isViewingSomething) return
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         handleBack()
@@ -34,16 +41,83 @@ function App() {
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [activeStyle, handleBack])
+  }, [isViewingSomething, handleBack])
 
   useEffect(() => {
-    if (activeStyle && mainRef.current) {
+    if (isViewingSomething && mainRef.current) {
       mainRef.current.focus()
     }
-  }, [activeStyle])
+  }, [isViewingSomething])
 
-  if (!activeStyle) {
-    return <HomePage onSelectStyle={setActiveStyle} />
+  if (!isViewingSomething) {
+    return <HomePage onSelectStyle={setActiveStyle} onSelectWebPage={setActiveWebPage} />
+  }
+
+  if (activeWebPage) {
+    return (
+      <div className="h-screen w-screen overflow-hidden bg-[#09090b] flex flex-col" ref={mainRef} tabIndex={-1}>
+        <nav className="flex-shrink-0 border-b border-white/[0.06] bg-[#09090b]/80 nav-blur z-50" aria-label="Web页面导航">
+          <div className="flex items-center h-11 px-3">
+            <button
+              onClick={handleBack}
+              aria-label="返回画廊"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 active:scale-[0.97]"
+            >
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+              Gallery
+            </button>
+            <div className="w-px h-4 bg-white/10 mx-2" aria-hidden="true" />
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-md bg-gradient-to-br from-violet-500 to-cyan-500" aria-hidden="true" />
+              <span className="font-display font-semibold text-white text-sm tracking-tight">
+                Web Design Gallery
+              </span>
+            </div>
+            <div className="ml-3 flex items-center gap-0.5 overflow-x-auto flex-1 scrollbar-none" role="tablist" aria-label="页面切换">
+              {Object.entries(groupedWebPages).map(([group, items]) => (
+                <div key={group} className="flex items-center gap-0.5 flex-shrink-0">
+                  {items.map((page) => (
+                    <button
+                      key={page.id}
+                      onClick={() => setActiveWebPage(page.id)}
+                      role="tab"
+                      aria-selected={activeWebPage === page.id}
+                      aria-label={`切换到 ${page.labelZh} 页面`}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 active:scale-[0.97] ${
+                        activeWebPage === page.id
+                          ? 'bg-white/10 text-white shadow-sm'
+                          : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/5'
+                      }`}
+                    >
+                      {page.labelZh}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {activeWebPageData && <UserDropdown style={activeWebPageData} />}
+          </div>
+        </nav>
+
+        <div className="flex-1 overflow-y-auto relative" style={{ transform: 'translate3d(0,0,0)' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeWebPage}
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
+              role="tabpanel"
+              aria-label={`${activeWebPageData?.labelZh || ''} 页面`}
+            >
+              <Suspense fallback={<div className="h-full w-full bg-neutral-900 flex items-center justify-center"><div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" role="status" aria-label="加载中" /></div>}>
+                {ActiveWebPage && <ActiveWebPage />}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    )
   }
 
   return (
