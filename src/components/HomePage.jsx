@@ -1,6 +1,6 @@
 import { useState, Suspense } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { BookOpen, Copy, Zap, Palette, Sparkles, Layers, Globe, ExternalLink, ArrowRight, Check } from 'lucide-react'
+import { BookOpen, Copy, Zap, Palette, Sparkles, Layers, Globe, ExternalLink, ArrowRight, Check, Presentation } from 'lucide-react'
 import { styles, groupedStyles } from '../dashboards'
 import { webPages, webPageGroups, groupedWebPages, getWebPageComponent } from '../webPages'
 import { categoryDescriptions } from '../data/categoryData'
@@ -16,6 +16,7 @@ const webPageIcons = {
   'business-card': Zap,
   'landing-page': Sparkles,
   'official-homepage': Globe,
+  'ppt': Presentation,
 }
 
 const webPageGradients = {
@@ -24,6 +25,7 @@ const webPageGradients = {
   'business-card': 'from-amber-500/20 to-yellow-500/20',
   'landing-page': 'from-purple-500/20 to-pink-500/20',
   'official-homepage': 'from-indigo-500/20 to-blue-500/20',
+  'ppt': 'from-rose-500/20 to-orange-500/20',
 }
 
 function WebPageCard({ page, onClick, index }) {
@@ -118,6 +120,7 @@ function WebPageCard({ page, onClick, index }) {
 
 export default function HomePage({ onSelectStyle, onSelectWebPage }) {
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [pptSubTab, setPptSubTab] = useState('all')
   const [showStyleList, setShowStyleList] = useState(false)
   const prefersReducedMotion = useReducedMotion()
 
@@ -130,10 +133,102 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
     Scientific: 'from-cyan-500/20 to-blue-500/20',
   }
 
+  const pptSubTabs = [
+    { id: 'all', label: '全部', labelZh: '全部' },
+    { id: 'dark', label: 'Dark Themes', labelZh: '暗色主题' },
+    { id: 'gradient', label: 'Gradient Effects', labelZh: '渐变光效' },
+    { id: 'personality', label: 'Personality Styles', labelZh: '个性风格' },
+    { id: 'light', label: 'Light Themes', labelZh: '浅色主题' },
+  ]
+
+  const pptCategoryMap = {
+    'ppt-minimal-white': 'light',
+    'ppt-cyberpunk-neon': 'dark',
+    'ppt-glassmorphism': 'dark',
+    'ppt-tokyo-night': 'dark',
+    'ppt-xiaohongshu-white': 'light',
+    'ppt-pitch-deck-vc': 'light',
+    'ppt-dracula': 'dark',
+    'ppt-nord': 'dark',
+    'ppt-catppuccin-mocha': 'dark',
+    'ppt-terminal-green': 'dark',
+    'ppt-aurora': 'gradient',
+    'ppt-vaporwave': 'gradient',
+    'ppt-neo-brutalism': 'personality',
+    'ppt-y2k-chrome': 'personality',
+    'ppt-editorial-serif': 'personality',
+    'ppt-sunset-warm': 'light',
+    'ppt-academic-paper': 'light',
+    'ppt-arctic-cool': 'light',
+    'ppt-bauhaus': 'personality',
+    'ppt-blueprint': 'dark',
+    'ppt-catppuccin-latte': 'light',
+    'ppt-corporate-clean': 'light',
+    'ppt-engineering-whiteprint': 'light',
+    'ppt-gruvbox-dark': 'dark',
+    'ppt-japanese-minimal': 'light',
+    'ppt-magazine-bold': 'personality',
+    'ppt-memphis-pop': 'personality',
+    'ppt-midcentury': 'personality',
+    'ppt-news-broadcast': 'personality',
+    'ppt-rainbow-gradient': 'gradient',
+    'ppt-retro-tv': 'personality',
+    'ppt-rose-pine': 'dark',
+    'ppt-sharp-mono': 'personality',
+    'ppt-soft-pastel': 'light',
+    'ppt-solarized-light': 'light',
+    'ppt-swiss-grid': 'light',
+    'ppt-course-module': 'light',
+    'ppt-dir-key-nav-minimal': 'personality',
+    'ppt-graphify-dark-graph': 'dark',
+    'ppt-hermes-cyber-terminal': 'dark',
+    'ppt-knowledge-arch-blueprint': 'dark',
+    'ppt-obsidian-claude-gradient': 'gradient',
+    'ppt-pitch-deck': 'light',
+    'ppt-presenter-mode-reveal': 'dark',
+    'ppt-product-launch': 'gradient',
+    'ppt-tech-sharing': 'light',
+    'ppt-testing-safety-alert': 'dark',
+    'ppt-weekly-report': 'light',
+    'ppt-xhs-white-editorial': 'light',
+    'ppt-xhs-pastel-card': 'light',
+    'ppt-xhs-post': 'personality',
+    'ppt-kpi-grid': 'light',
+    'ppt-timeline': 'light',
+    'ppt-roadmap': 'light',
+    'ppt-gantt': 'light',
+    'ppt-table': 'light',
+    'ppt-chart': 'light',
+    'ppt-code': 'dark',
+    'ppt-comparison': 'light',
+    'ppt-flow-diagram': 'light',
+    'ppt-mindmap': 'light',
+    'ppt-process-steps': 'light',
+    'ppt-three-column': 'light',
+    'ppt-two-column': 'light',
+    'ppt-big-quote': 'light',
+    'ppt-checklist': 'light',
+  }
+
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', labelZh: '仪表盘', icon: Layers },
     { id: 'web-design', label: 'Web Design', labelZh: 'Web页面设计', icon: Globe },
+    { id: 'ppt', label: 'PPT', labelZh: 'PPT演示页', icon: Presentation },
   ]
+
+  const pptPages = webPages.filter(p => p.group === 'PPT')
+  const filteredPptPages = pptSubTab === 'all' ? pptPages : pptPages.filter(p => pptCategoryMap[p.id] === pptSubTab)
+  const groupedFilteredPptPages = filteredPptPages.reduce((acc, page) => {
+    if (!acc[page.group]) acc[page.group] = []
+    acc[page.group].push(page)
+    return acc
+  }, {})
+  const nonPptWebPages = webPages.filter(p => p.group !== 'PPT')
+  const groupedNonPptWebPages = nonPptWebPages.reduce((acc, page) => {
+    if (!acc[page.group]) acc[page.group] = []
+    acc[page.group].push(page)
+    return acc
+  }, {})
 
   return (
     <div className="h-full w-full overflow-y-auto bg-[#09090b]">
@@ -160,7 +255,9 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
             <p className="text-neutral-400 text-base max-w-xl mx-auto mb-6 leading-relaxed">
               {activeTab === 'dashboard'
                 ? `${styles.length} professional dashboard designs across 6 categories. Click any card to explore the full interactive dashboard.`
-                : `${webPages.length} representative web page designs. From portfolios to landing pages, each showcases professional UI design.`
+                : activeTab === 'web-design'
+                ? `${nonPptWebPages.length} representative web page designs. From portfolios to landing pages, each showcases professional UI design.`
+                : `${pptPages.length} professional PPT presentation styles. From minimal white to cyberpunk neon, each with keyboard navigation and slide transitions.`
             }
             </p>
 
@@ -181,7 +278,7 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
                       <Icon className="w-4 h-4" />
                       <span>{tab.labelZh}</span>
                       <span className="text-[10px] text-neutral-500 font-mono">
-                        {tab.id === 'dashboard' ? styles.length : webPages.length}
+                        {tab.id === 'dashboard' ? styles.length : tab.id === 'web-design' ? nonPptWebPages.length : pptPages.length}
                       </span>
                     </button>
                   )
@@ -269,7 +366,7 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
             )
           })}
 
-          {activeTab === 'web-design' && Object.entries(groupedWebPages).map(([group, items], groupIndex) => {
+          {activeTab === 'web-design' && Object.entries(groupedNonPptWebPages).map(([group, items], groupIndex) => {
             const groupInfo = webPageGroups[group]
             return (
               <motion.section
@@ -300,6 +397,64 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
               </motion.section>
             )
           })}
+
+          {activeTab === 'ppt' && (
+            <>
+              <div className="flex items-center justify-center mb-8">
+                <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+                  {pptSubTabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setPptSubTab(tab.id)}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
+                        pptSubTab === tab.id
+                          ? 'bg-white/10 text-white shadow-sm'
+                          : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/5'
+                      }`}
+                    >
+                      <span>{tab.labelZh}</span>
+                      <span className="ml-1 text-[10px] text-neutral-500 font-mono">
+                        {tab.id === 'all' ? pptPages.length : pptPages.filter(p => pptCategoryMap[p.id] === tab.id).length}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {Object.entries(groupedFilteredPptPages).map(([group, items], groupIndex) => {
+                const groupInfo = webPageGroups[group]
+                return (
+                  <motion.section
+                    key={group}
+                    initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: prefersReducedMotion ? 0 : groupIndex * 0.1 + 0.3, duration: prefersReducedMotion ? 0 : 0.5, ease: [0.16, 1, 0.3, 1] }}
+                    className="mb-16"
+                    aria-label={`${groupInfo?.labelZh || group} PPT分类`}
+                  >
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r ${groupInfo?.color || 'from-gray-500/20 to-gray-500/20'} border border-white/5`}>
+                        <Presentation className="w-3.5 h-3.5 text-white/70" aria-hidden="true" />
+                        <h2 className="text-xs font-semibold text-white/80 uppercase tracking-[0.12em]">{groupInfo?.labelZh || group}</h2>
+                      </div>
+                      <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+                      <span className="text-xs text-neutral-600 font-mono">{items.length} styles</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                      {items.map((page, i) => (
+                        <WebPageCard
+                          key={page.id}
+                          page={page}
+                          onClick={() => onSelectWebPage(page.id)}
+                          index={i}
+                        />
+                      ))}
+                    </div>
+                  </motion.section>
+                )
+              })}
+            </>
+          )}
 
           <motion.footer
             initial={{ opacity: 0 }}

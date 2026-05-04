@@ -11,6 +11,9 @@ import {
   Sparkles,
   Heart,
   Coffee,
+  LayoutDashboard,
+  Users,
+  Monitor,
 } from 'lucide-react'
 
 const experiences = [
@@ -20,7 +23,7 @@ const experiences = [
     period: '2023 - Now',
     desc: 'Leading design for a creative collaboration platform used by 50K+ artists worldwide. Built the design system from zero to 200+ components.',
     tags: ['Figma', 'Design System', 'Research'],
-    emoji: '🎨',
+    icon: LayoutDashboard,
   },
   {
     role: 'UX Designer',
@@ -28,7 +31,7 @@ const experiences = [
     period: '2021 - 2023',
     desc: 'Designed delightful mobile experiences for kids and families. Apps featured on App Store 3 times.',
     tags: ['Mobile', 'Prototyping', 'User Testing'],
-    emoji: '📱',
+    icon: Users,
   },
   {
     role: 'Visual Designer',
@@ -36,13 +39,13 @@ const experiences = [
     period: '2019 - 2021',
     desc: 'Created brand identities and visual systems for startups in health, education, and sustainability.',
     tags: ['Branding', 'Illustration', 'Print'],
-    emoji: '✨',
+    icon: Palette,
   },
 ]
 
 const education = [
-  { degree: 'MFA Interactive Design', school: 'School of Visual Arts', period: '2017 - 2019', emoji: '🎓' },
-  { degree: 'BA Graphic Design', school: 'RISD', period: '2013 - 2017', emoji: '📐' },
+  { degree: 'MFA Interactive Design', school: 'School of Visual Arts', period: '2017 - 2019', icon: Monitor },
+  { degree: 'BA Graphic Design', school: 'RISD', period: '2013 - 2017', icon: Palette },
 ]
 
 const skills = [
@@ -66,7 +69,7 @@ export default function ResumeCreativePage() {
       <div className="max-w-[900px] mx-auto px-6 py-12">
         <div className="text-center mb-10">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 mx-auto mb-4 flex items-center justify-center shadow-lg shadow-amber-200/50">
-            <span className="text-3xl">🌸</span>
+            <span className="text-3xl font-bold text-white">M</span>
           </div>
           <h1 className="text-3xl font-bold mb-1">Mia Zhang</h1>
           <p className="text-base text-amber-700 font-medium mb-2">Lead Product Designer</p>
@@ -124,7 +127,9 @@ export default function ResumeCreativePage() {
           <div className="space-y-6">
             {experiences.map((exp, i) => (
               <div key={i} className="relative pl-8">
-                <div className="absolute left-0 top-1 text-xl">{exp.emoji}</div>
+                <div className="absolute left-0 top-1">
+                  <exp.icon size={20} className="text-amber-500" />
+                </div>
                 <div className="absolute left-[13px] top-9 bottom-0 w-px bg-amber-200 last:hidden" />
                 <div className="flex items-start justify-between mb-1">
                   <div>
@@ -152,7 +157,7 @@ export default function ResumeCreativePage() {
           <div className="space-y-4">
             {education.map((edu, i) => (
               <div key={i} className="flex items-center gap-3">
-                <span className="text-xl">{edu.emoji}</span>
+                <edu.icon size={20} className="text-amber-500" />
                 <div className="flex-1">
                   <h3 className="text-sm font-bold text-stone-800">{edu.degree}</h3>
                   <p className="text-xs text-amber-600">{edu.school}</p>

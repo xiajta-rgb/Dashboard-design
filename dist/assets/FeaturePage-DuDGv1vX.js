@@ -1,0 +1,11 @@
+import{c as a,r,j as e,Z as n,P as d}from"./index-D8kpKkXD.js";import{S as i}from"./shield-BU4uWhXx.js";import{C as x}from"./chart-column-DElPRQOm.js";/**
+ * @license lucide-react v0.468.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const m=a("MessageCircle",[["path",{d:"M7.9 20A9 9 0 1 0 4 16.1L2 22Z",key:"vv11sd"}]]);/**
+ * @license lucide-react v0.468.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const f=a("Plug",[["path",{d:"M12 22v-5",key:"1ega77"}],["path",{d:"M9 8V2",key:"14iosj"}],["path",{d:"M15 8V2",key:"18g5xt"}],["path",{d:"M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z",key:"osxo6l"}]]);function y(){const[l,t]=r.useState(null),c=[{icon:n,title:"极速性能",desc:"毫秒级响应，流畅体验",color:"#ff9500"},{icon:i,title:"安全可靠",desc:"企业级安全防护",color:"#34c759"},{icon:d,title:"精美设计",desc:"现代化 UI 设计",color:"#0071e3"},{icon:x,title:"数据分析",desc:"深度洞察业务数据",color:"#af52de"},{icon:f,title:"无缝集成",desc:"支持多种第三方服务",color:"#ff3b30"},{icon:m,title:"智能客服",desc:"7x24 小时在线支持",color:"#5ac8fa"}];return e.jsx("div",{className:"w-full h-full overflow-auto",style:{background:"#f5f5f7",fontFamily:"'Inter', 'Noto Sans SC', sans-serif"},children:e.jsxs("div",{className:"max-w-6xl mx-auto px-8 py-16",children:[e.jsxs("div",{className:"text-center mb-16",children:[e.jsx("h1",{className:"text-5xl font-bold mb-4",style:{color:"#1d1d1f"},children:"强大功能，简单使用"}),e.jsx("p",{className:"text-xl",style:{color:"#86868b"},children:"六大核心功能，助力业务增长"})]}),e.jsx("div",{className:"grid grid-cols-3 gap-8",children:c.map((o,s)=>e.jsxs("div",{onMouseEnter:()=>t(s),onMouseLeave:()=>t(null),className:"p-8 rounded-2xl transition-all duration-300",style:{background:"#ffffff",border:`2px solid ${l===s?o.color:"#e5e5e7"}`,transform:l===s?"translateY(-8px)":"none",boxShadow:l===s?`0 16px 32px ${o.color}20`:"none"},children:[e.jsx(o.icon,{size:64,className:"mb-6",style:{color:o.color}}),e.jsx("h3",{className:"text-2xl font-bold mb-3",style:{color:o.color},children:o.title}),e.jsx("p",{className:"text-base",style:{color:"#666666"},children:o.desc})]},s))})]})})}export{y as default};

@@ -5,8 +5,6 @@ import {
   ArrowRight,
   ChevronRight,
   Flame,
-  Dragon,
-  Fan,
   Cloud,
   Landmark,
 } from 'lucide-react'
