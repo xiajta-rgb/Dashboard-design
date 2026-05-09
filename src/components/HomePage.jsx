@@ -1,12 +1,13 @@
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { BookOpen, Copy, Zap, Palette, Sparkles, Layers, Globe, ExternalLink, ArrowRight, Check, Presentation } from 'lucide-react'
+import { BookOpen, Copy, Zap, Palette, Sparkles, Layers, Globe, ExternalLink, ArrowRight, Check, Presentation, Paintbrush, Type, LayoutGrid, Code } from 'lucide-react'
 import { styles, groupedStyles } from '../dashboards'
 import { webPages, webPageGroups, groupedWebPages, getWebPageComponent } from '../webPages'
 import { categoryDescriptions } from '../data/categoryData'
 import { copyToClipboard } from '../utils/colorUtils'
 import { generateStylePrompt } from '../utils/styleGenerator'
 import { styleKeywords } from '../data/categoryData'
+import { Button, IconButton, Badge, TabList, Tab } from './ui'
 import StyleCard from './StyleCard'
 import StyleListModal from './StyleListModal'
 
@@ -33,14 +34,14 @@ function WebPageCard({ page, onClick, index }) {
   const [copied, setCopied] = useState(false)
   const PreviewComponent = getWebPageComponent(page.id)
 
-  const handleCopy = (e) => {
+  const handleCopy = useCallback((e) => {
     e.stopPropagation()
     const text = generateStylePrompt(page, styleKeywords)
     copyToClipboard(text).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
-  }
+  }, [page])
 
   return (
     <motion.div
@@ -72,17 +73,15 @@ function WebPageCard({ page, onClick, index }) {
           <span className="text-[10px] text-white/50 font-mono bg-black/40 px-1.5 py-0.5 rounded backdrop-blur-sm">{page.id}</span>
         </div>
 
-        <button
+        <IconButton
           onClick={handleCopy}
-          aria-label={copied ? '已复制风格代码' : `复制 ${page.labelZh} 风格代码`}
-          className={`absolute top-2 right-2 z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 ${
-            copied
-              ? 'bg-emerald-500/90 text-white'
-              : 'bg-black/50 text-white/70 backdrop-blur-sm hover:bg-black/70 hover:text-white opacity-0 group-hover:opacity-100'
-          }`}
+          label={copied ? '已复制风格代码' : `复制 ${page.labelZh} 风格代码`}
+          variant={copied ? 'success' : 'secondary'}
+          size="sm"
+          className="absolute top-2 right-2 z-20 backdrop-blur-sm"
         >
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-        </button>
+        </IconButton>
       </div>
 
       <div className="p-3.5 bg-[#0c0c0e]">
@@ -93,7 +92,7 @@ function WebPageCard({ page, onClick, index }) {
         <p className="text-xs text-neutral-500 leading-relaxed mb-2.5 line-clamp-2">{page.descriptionZh}</p>
         <div className="flex items-center gap-1.5 mb-3">
           {page.useCases.slice(0, 2).map((tag, i) => (
-            <span key={i} className="text-[10px] text-neutral-400 bg-white/[0.04] border border-white/[0.06] px-1.5 py-0.5 rounded-md">{tag}</span>
+            <Badge key={i} variant="default" size="sm">{tag}</Badge>
           ))}
         </div>
         <div className="flex items-center justify-between">
@@ -106,10 +105,10 @@ function WebPageCard({ page, onClick, index }) {
             </div>
             <div className="w-px h-3 bg-white/[0.06]" aria-hidden="true" />
             <div className="flex items-center gap-0.5" aria-label="色彩搭配">
-              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.primary }} />
-              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.secondary }} />
-              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.accent }} />
-              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.highlight }} />
+              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.primary }} aria-label={`主色调 ${page.colors.primary}`} />
+              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.secondary }} aria-label={`辅色调 ${page.colors.secondary}`} />
+              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.accent }} aria-label={`强调色 ${page.colors.accent}`} />
+              <div className="w-3 h-3 rounded-full border border-white/10 shadow-sm" style={{ backgroundColor: page.colors.highlight }} aria-label={`点缀色 ${page.colors.highlight}`} />
             </div>
           </div>
         </div>
@@ -118,7 +117,7 @@ function WebPageCard({ page, onClick, index }) {
   )
 }
 
-export default function HomePage({ onSelectStyle, onSelectWebPage }) {
+export default function HomePage({ onSelectStyle, onSelectWebPage, onSelectDesignPage }) {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [pptSubTab, setPptSubTab] = useState('all')
   const [showStyleList, setShowStyleList] = useState(false)
@@ -208,12 +207,16 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
     'ppt-two-column': 'light',
     'ppt-big-quote': 'light',
     'ppt-checklist': 'light',
+    'ppt-phd-defense': 'light',
+    'ppt-art-graduate': 'light',
+    'ppt-music-academy': 'light',
   }
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', labelZh: '仪表盘', icon: Layers },
     { id: 'web-design', label: 'Web Design', labelZh: 'Web页面设计', icon: Globe },
     { id: 'ppt', label: 'PPT', labelZh: 'PPT演示页', icon: Presentation },
+    { id: 'design', label: 'Design', labelZh: '设计知识', icon: Paintbrush },
   ]
 
   const pptPages = webPages.filter(p => p.group === 'PPT')
@@ -229,6 +232,10 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
     acc[page.group].push(page)
     return acc
   }, {})
+
+  const handleStyleGuideClick = useCallback(() => {
+    setShowStyleList(true)
+  }, [])
 
   return (
     <div className="h-full w-full overflow-y-auto bg-[#09090b]">
@@ -262,48 +269,56 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
             </p>
 
             <div className="flex items-center justify-center mb-8">
-              <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <TabList>
                 {tabs.map(tab => {
                   const Icon = tab.icon
+                  const count = tab.id === 'dashboard' ? styles.length : tab.id === 'web-design' ? nonPptWebPages.length : tab.id === 'ppt' ? pptPages.length : '∞'
                   return (
-                    <button
+                    <Tab
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                        activeTab === tab.id
-                          ? 'bg-white/10 text-white shadow-sm'
-                          : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/5'
-                      }`}
+                      id={`tab-${tab.id}`}
+                      active={activeTab === tab.id}
+                      onClick={() => {
+                        if (tab.id === 'design') {
+                          onSelectDesignPage?.('design')
+                        } else {
+                          setActiveTab(tab.id)
+                        }
+                      }}
+                      aria-label={`切换到 ${tab.labelZh}`}
                     >
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-4 h-4" aria-hidden="true" />
                       <span>{tab.labelZh}</span>
-                      <span className="text-[10px] text-neutral-500 font-mono">
-                        {tab.id === 'dashboard' ? styles.length : tab.id === 'web-design' ? nonPptWebPages.length : pptPages.length}
-                      </span>
-                    </button>
+                      <span className="text-[10px] text-neutral-500 font-mono">{count}</span>
+                    </Tab>
                   )
                 })}
-              </div>
+              </TabList>
             </div>
 
             {activeTab === 'dashboard' && (
               <div className="flex items-center justify-center gap-3">
-                <motion.button
+                <motion.div
                   initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: prefersReducedMotion ? 0 : 0.4, duration: prefersReducedMotion ? 0 : 0.3 }}
-                  onClick={() => setShowStyleList(true)}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-neutral-900 hover:bg-neutral-100 transition-all duration-200 text-sm font-semibold shadow-lg shadow-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-950 cursor-pointer active:scale-[0.98]"
                 >
-                  <BookOpen className="w-4 h-4" aria-hidden="true" />
-                  风格指南
-                </motion.button>
+                  <Button
+                    onClick={handleStyleGuideClick}
+                    variant="secondary"
+                    size="md"
+                    leftIcon={<BookOpen className="w-4 h-4" />}
+                  >
+                    风格指南
+                  </Button>
+                </motion.div>
 
                 <motion.div
                   initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: prefersReducedMotion ? 0 : 0.5, duration: prefersReducedMotion ? 0 : 0.3 }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-white/10 text-neutral-400 text-sm"
+                  aria-label="一键复制风格代码功能说明"
                 >
                   <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>一键复制风格代码</span>
@@ -401,24 +416,23 @@ export default function HomePage({ onSelectStyle, onSelectWebPage }) {
           {activeTab === 'ppt' && (
             <>
               <div className="flex items-center justify-center mb-8">
-                <div className="inline-flex items-center gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/[0.06]">
-                  {pptSubTabs.map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setPptSubTab(tab.id)}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
-                        pptSubTab === tab.id
-                          ? 'bg-white/10 text-white shadow-sm'
-                          : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/5'
-                      }`}
-                    >
-                      <span>{tab.labelZh}</span>
-                      <span className="ml-1 text-[10px] text-neutral-500 font-mono">
-                        {tab.id === 'all' ? pptPages.length : pptPages.filter(p => pptCategoryMap[p.id] === tab.id).length}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                <TabList>
+                  {pptSubTabs.map(tab => {
+                    const count = tab.id === 'all' ? pptPages.length : pptPages.filter(p => pptCategoryMap[p.id] === tab.id).length
+                    return (
+                      <Tab
+                        key={tab.id}
+                        id={`ppt-tab-${tab.id}`}
+                        active={pptSubTab === tab.id}
+                        onClick={() => setPptSubTab(tab.id)}
+                        aria-label={`切换到 ${tab.labelZh}`}
+                      >
+                        <span>{tab.labelZh}</span>
+                        <span className="text-[10px] text-neutral-500 font-mono">{count}</span>
+                      </Tab>
+                    )
+                  })}
+                </TabList>
               </div>
 
               {Object.entries(groupedFilteredPptPages).map(([group, items], groupIndex) => {

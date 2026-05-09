@@ -1,6 +1,7 @@
 import { Suspense, useState, useCallback } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, ExternalLink, Copy, Check } from 'lucide-react'
+import { ArrowRight, Copy, Check, ExternalLink } from 'lucide-react'
+import { IconButton } from './ui'
 import { copyToClipboard } from '../utils/colorUtils'
 import { generateStylePrompt } from '../utils/styleGenerator'
 import { styleKeywords } from '../data/categoryData'

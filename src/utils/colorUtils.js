@@ -5,14 +5,12 @@ export function isColorDark(hex) {
   return (r * 299 + g * 587 + b * 114) / 1000 < 128
 }
 
-export function copyToClipboard(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    return navigator.clipboard.writeText(text)
-  }
+function fallbackCopyText(text) {
   const textarea = document.createElement('textarea')
   textarea.value = text
   textarea.style.position = 'fixed'
   textarea.style.left = '-9999px'
+  textarea.style.opacity = '0'
   document.body.appendChild(textarea)
   textarea.focus()
   textarea.select()
@@ -26,4 +24,11 @@ export function copyToClipboard(text) {
       document.body.removeChild(textarea)
     }
   })
+}
+
+export function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).catch(() => fallbackCopyText(text))
+  }
+  return fallbackCopyText(text)
 }

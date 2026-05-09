@@ -1,4 +1,5 @@
 import CopyStyleButton from './CopyStyleButton'
+import { Badge } from './ui'
 
 export default function StyleSpecsPanel({ style }) {
   return (
@@ -18,7 +19,7 @@ export default function StyleSpecsPanel({ style }) {
         <h4 className="text-[11px] font-semibold text-neutral-500 uppercase tracking-[0.1em]">适用场景</h4>
         <div className="flex flex-wrap gap-1.5">
           {style.useCases.map((tag, i) => (
-            <span key={i} className="text-[11px] text-neutral-300 bg-white/[0.04] border border-white/[0.06] px-2 py-0.5 rounded-md">{tag}</span>
+            <Badge key={i} variant="default" size="sm">{tag}</Badge>
           ))}
         </div>
       </div>

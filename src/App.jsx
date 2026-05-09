@@ -9,10 +9,20 @@ import StyleListModal from './components/StyleListModal'
 import LayoutLibraryPanel from './components/LayoutLibraryPanel'
 import UserDropdown from './components/UserDropdown'
 import StyleSpecsPanel from './components/StyleSpecsPanel'
+import DesignPage from './design/DesignPage'
+import TypographyPage from './design/TypographyPage'
+import ColorPage from './design/ColorPage'
+import LayoutPage from './design/LayoutPage'
+import DesignSystemPage from './design/DesignSystemPage'
+import MotionPage from './design/MotionPage'
+import ThemePage from './design/ThemePage'
+import DataVizPage from './design/DataVizPage'
+import RoadmapPage from './design/RoadmapPage'
 
 function App() {
   const [activeStyle, setActiveStyle] = useState(null)
   const [activeWebPage, setActiveWebPage] = useState(null)
+  const [activeDesignPage, setActiveDesignPage] = useState(null)
   const [showSpecs, setShowSpecs] = useState(false)
   const [showLayoutLib, setShowLayoutLib] = useState(false)
   const prefersReducedMotion = useReducedMotion()
@@ -24,6 +34,21 @@ function App() {
   const activeWebPageData = webPages.find(p => p.id === activeWebPage)
 
   const isViewingSomething = activeStyle || activeWebPage
+  const isDesignPage = activeDesignPage
+
+  const designPages = {
+    'design': DesignPage,
+    'typography': TypographyPage,
+    'color': ColorPage,
+    'layout': LayoutPage,
+    'design-system': DesignSystemPage,
+    'motion': MotionPage,
+    'theme': ThemePage,
+    'data-viz': DataVizPage,
+    'roadmap': RoadmapPage,
+  }
+
+  const ActiveDesignPage = designPages[activeDesignPage]
 
   const handleBack = useCallback(() => {
     setActiveStyle(null)
@@ -32,16 +57,24 @@ function App() {
     setShowLayoutLib(false)
   }, [])
 
+  const handleBackFromDesign = useCallback(() => {
+    setActiveDesignPage(null)
+  }, [])
+
   useEffect(() => {
-    if (!isViewingSomething) return
+    if (!isViewingSomething && !isDesignPage) return
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        handleBack()
+        if (isDesignPage) {
+          handleBackFromDesign()
+        } else {
+          handleBack()
+        }
       }
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isViewingSomething, handleBack])
+  }, [isViewingSomething, isDesignPage, handleBack, handleBackFromDesign])
 
   useEffect(() => {
     if (isViewingSomething && mainRef.current) {
@@ -49,8 +82,78 @@ function App() {
     }
   }, [isViewingSomething])
 
+  if (isDesignPage) {
+    return (
+      <div className="h-screen w-screen overflow-hidden bg-[#09090b] flex flex-col" ref={mainRef} tabIndex={-1}>
+        <nav className="flex-shrink-0 border-b border-white/[0.06] bg-[#09090b]/80 backdrop-blur-xl z-50">
+          <div className="flex items-center h-11 px-3">
+            <button
+              onClick={handleBackFromDesign}
+              aria-label="返回画廊"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 active:scale-[0.97]"
+            >
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+              Gallery
+            </button>
+            <div className="w-px h-4 bg-white/10 mx-2" aria-hidden="true" />
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-md bg-gradient-to-br from-violet-500 to-cyan-500" aria-hidden="true" />
+              <span className="font-display font-semibold text-white text-sm tracking-tight">
+                Design Knowledge
+              </span>
+            </div>
+            <div className="ml-3 flex items-center gap-0.5 overflow-x-auto flex-1 scrollbar-none" role="tablist" aria-label="页面切换">
+              {Object.entries(designPages).map(([key, Component]) => (
+                <button
+                  key={key}
+                  onClick={() => setActiveDesignPage(key)}
+                  role="tab"
+                  aria-selected={activeDesignPage === key}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 active:scale-[0.97] ${
+                    activeDesignPage === key
+                      ? 'bg-white/10 text-white shadow-sm'
+                      : 'text-neutral-500 hover:text-neutral-300 hover:bg-white/5'
+                  }`}
+                >
+                  {key === 'design' && '概览'}
+                  {key === 'typography' && '字体库'}
+                  {key === 'color' && '色彩科学'}
+                  {key === 'layout' && '排版技法'}
+                  {key === 'design-system' && '设计系统'}
+                  {key === 'motion' && '动效设计'}
+                  {key === 'theme' && '主题系统'}
+                  {key === 'data-viz' && '数据可视化'}
+                  {key === 'roadmap' && '迭代路线图'}
+                </button>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        <div className="flex-1 overflow-y-auto relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeDesignPage}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              role="tabpanel"
+            >
+              <Suspense fallback={<div className="h-full w-full bg-neutral-900 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white animate-spin" role="status" aria-label="加载中" />
+              </div>}>
+                {ActiveDesignPage && <ActiveDesignPage />}
+              </Suspense>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+    )
+  }
+
   if (!isViewingSomething) {
-    return <HomePage onSelectStyle={setActiveStyle} onSelectWebPage={setActiveWebPage} />
+    return <HomePage onSelectStyle={setActiveStyle} onSelectWebPage={setActiveWebPage} onSelectDesignPage={setActiveDesignPage} />
   }
 
   if (activeWebPage) {

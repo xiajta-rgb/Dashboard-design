@@ -25,17 +25,10 @@ import {
   Filter,
   MoreHorizontal,
 } from 'lucide-react'
+import { Button, IconButton, SearchInput, StatusBadge, Avatar, Card, CardHeader, CardTitle } from '../components/ui'
 import { kpiData, chartData, barChartData, tableData, sidebarItems , sidebarIcons } from '../data/mockData'
 
-
-
 const glassCard = 'bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)]'
-
-const statusStyles = {
-  Active: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
-  Inactive: 'bg-gray-500/20 text-gray-300 border border-gray-500/30',
-  Pending: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-}
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -78,33 +71,37 @@ export default function GlassmorphismDashboard() {
             </div>
             <div className="hidden md:flex items-center gap-1">
               {['Overview', 'Analytics', 'Users', 'Reports', 'Settings'].map((item) => (
-                <button
+                <Button
                   key={item}
+                  variant="ghost"
+                  size="sm"
                   onClick={item === 'Settings' ? openLayoutLib : undefined}
-                  className="px-3.5 py-1.5 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
+                  className="text-white/60 hover:text-white hover:bg-white/10"
                 >
                   {item}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-52 pl-9 pr-4 py-1.5 rounded-lg bg-white/10 border border-white/10 text-white text-sm placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/15 transition-all duration-200"
-              />
-            </div>
-            <button className="relative p-2 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-all duration-200 cursor-pointer">
+            <SearchInput 
+              placeholder="Search..." 
+              className="w-52"
+            />
+            <IconButton 
+              label="通知" 
+              variant="ghost" 
+              size="sm"
+              className="text-white/60 hover:text-white"
+            >
               <Bell className="w-4.5 h-4.5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-slate-400" />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 border-2 border-white/20 flex items-center justify-center">
-              <span className="text-white text-xs font-semibold">SC</span>
-            </div>
+            </IconButton>
+            <Avatar 
+              name="Sarah Connor" 
+              size="sm" 
+              className="bg-gradient-to-br from-slate-300 to-slate-500"
+            />
           </div>
         </nav>
 
@@ -139,14 +136,14 @@ export default function GlassmorphismDashboard() {
             </div>
 
             <div className="mt-auto pt-4 border-t border-white/10">
-              <div className={`${glassCard} p-4`}>
+              <Card variant="glass" padding="sm">
                 <p className="text-white/80 text-xs font-medium mb-1">Storage Used</p>
                 <p className="text-white font-display font-semibold text-lg">67.2 GB</p>
                 <div className="mt-2.5 w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
                   <div className="h-full w-[67%] rounded-full bg-gradient-to-r from-slate-400 to-slate-500" />
                 </div>
                 <p className="text-white/40 text-[11px] mt-1.5">of 100 GB</p>
-              </div>
+              </Card>
             </div>
           </aside>
 
@@ -161,40 +158,48 @@ export default function GlassmorphismDashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-2.5">
-                <button
-                  className={`${glassCard} flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white hover:bg-white/15 transition-all duration-200 text-sm cursor-pointer`}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Filter className="w-3.5 h-3.5" />}
+                  className="bg-white/10 text-white/70 hover:text-white hover:bg-white/15"
                 >
-                  <Filter className="w-3.5 h-3.5" />
                   Filter
-                </button>
-                <button
-                  className={`${glassCard} flex items-center gap-2 px-4 py-2 text-white/70 hover:text-white hover:bg-white/15 transition-all duration-200 text-sm cursor-pointer`}
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftIcon={<Download className="w-3.5 h-3.5" />}
+                  className="bg-white/10 text-white/70 hover:text-white hover:bg-white/15"
                 >
-                  <Download className="w-3.5 h-3.5" />
                   Export
-                </button>
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-slate-500 to-slate-600 text-white text-sm font-medium shadow-[0_4px_20px_rgba(100,116,139,0.35)] hover:shadow-[0_6px_28px_rgba(100,116,139,0.5)] transition-all duration-200 cursor-pointer"
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
+                  className="bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-600 hover:to-slate-700"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
                   Refresh
-                </button>
+                </Button>
               </div>
             </div>
 
             <div className="grid grid-cols-4 gap-4">
               {firstFourKpi.map((kpi, i) => (
-                <div
-                  key={i}
-                  className={`${glassCard} p-5 hover:bg-white/15 transition-all duration-200 group cursor-default`}
-                >
+                <Card key={i} variant="glass" hoverable>
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-white/50 text-xs font-medium uppercase tracking-wider">
                       {kpi.title}
                     </p>
-                    <button className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white/30 hover:text-white/60 cursor-pointer">
+                    <IconButton 
+                      label="更多选项" 
+                      variant="ghost" 
+                      size="xs"
+                      className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-white/60"
+                    >
                       <MoreHorizontal className="w-4 h-4" />
-                    </button>
+                    </IconButton>
                   </div>
                   <p className="font-display font-bold text-2xl text-white tracking-tight">
                     {kpi.value}
@@ -214,17 +219,15 @@ export default function GlassmorphismDashboard() {
                     </span>
                     <span className="text-white/30 text-xs">vs last month</span>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className={`${glassCard} p-5`}>
-                <div className="flex items-center justify-between mb-5">
+              <Card variant="glass">
+                <CardHeader className="mb-5">
                   <div>
-                    <h2 className="font-display font-semibold text-white text-base">
-                      Revenue Overview
-                    </h2>
+                    <CardTitle className="font-display text-base">Revenue Overview</CardTitle>
                     <p className="text-white/40 text-xs mt-0.5">Monthly revenue and user trends</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs">
@@ -237,7 +240,7 @@ export default function GlassmorphismDashboard() {
                       <span className="text-white/50">Users</span>
                     </span>
                   </div>
-                </div>
+                </CardHeader>
                 <ResponsiveContainer width="100%" height={240}>
                   <AreaChart data={chartData}>
                     <defs>
@@ -281,17 +284,15 @@ export default function GlassmorphismDashboard() {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
-              </div>
+              </Card>
 
-              <div className={`${glassCard} p-5`}>
-                <div className="flex items-center justify-between mb-5">
+              <Card variant="glass">
+                <CardHeader className="mb-5">
                   <div>
-                    <h2 className="font-display font-semibold text-white text-base">
-                      Weekly Activity
-                    </h2>
+                    <CardTitle className="font-display text-base">Weekly Activity</CardTitle>
                     <p className="text-white/40 text-xs mt-0.5">Daily sessions this week</p>
                   </div>
-                </div>
+                </CardHeader>
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart data={barChartData} barCategoryGap="20%">
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -321,21 +322,19 @@ export default function GlassmorphismDashboard() {
                     </defs>
                   </BarChart>
                 </ResponsiveContainer>
-              </div>
+              </Card>
             </div>
 
-            <div className={`${glassCard} p-5`}>
-              <div className="flex items-center justify-between mb-5">
+            <Card variant="glass">
+              <CardHeader className="mb-5">
                 <div>
-                  <h2 className="font-display font-semibold text-white text-base">
-                    Team Members
-                  </h2>
+                  <CardTitle className="font-display text-base">Team Members</CardTitle>
                   <p className="text-white/40 text-xs mt-0.5">Recent user activity and roles</p>
                 </div>
-                <button className="text-white/40 hover:text-white/70 text-xs transition-colors duration-200 cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-white/40 hover:text-white/70">
                   View All
-                </button>
-              </div>
+                </Button>
+              </CardHeader>
               <div className="overflow-hidden rounded-xl border border-white/10">
                 <table className="w-full">
                   <thead>
@@ -365,12 +364,11 @@ export default function GlassmorphismDashboard() {
                       >
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-500/60 to-slate-600/60 flex items-center justify-center text-white text-xs font-semibold border border-white/10">
-                              {row.name
-                                .split(' ')
-                                .map((n) => n[0])
-                                .join('')}
-                            </div>
+                            <Avatar 
+                              name={row.name} 
+                              size="sm" 
+                              className="bg-gradient-to-br from-slate-500/60 to-slate-600/60"
+                            />
                             <div>
                               <p className="text-white text-sm font-medium">{row.name}</p>
                               <p className="text-white/35 text-xs">{row.email}</p>
@@ -379,26 +377,25 @@ export default function GlassmorphismDashboard() {
                         </td>
                         <td className="px-5 py-3.5 text-white/60 text-sm">{row.role}</td>
                         <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              statusStyles[row.status]
-                            }`}
-                          >
-                            {row.status}
-                          </span>
+                          <StatusBadge status={row.status.toLowerCase()} />
                         </td>
                         <td className="px-5 py-3.5 text-white/40 text-sm">{row.lastActive}</td>
                         <td className="px-5 py-3.5 text-right">
-                          <button className="text-white/30 hover:text-white/60 transition-colors duration-200 cursor-pointer">
+                          <IconButton 
+                            label="更多选项" 
+                            variant="ghost" 
+                            size="xs"
+                            className="text-white/30 hover:text-white/60"
+                          >
                             <MoreHorizontal className="w-4 h-4" />
-                          </button>
+                          </IconButton>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           </main>
         </div>
       </div>
