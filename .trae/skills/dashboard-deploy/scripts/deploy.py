@@ -14,6 +14,8 @@ import requests
 import sys
 import json
 import base64
+import zipfile
+import io
 from pathlib import Path
 
 USERNAME = 'desgin'
@@ -29,16 +31,29 @@ PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent.parent
 STATIC_WSGI_CONTENT = '''#!/usr/bin/env python3
 """
 Dashboard Design WSGI Configuration for PythonAnywhere
+Auto-extracts dist.zip on first load if dist directory doesn't exist
 """
 
 import os
 import sys
+import zipfile
+import shutil
 
 path = '/home/desgin/Dashboard-design'
 if path not in sys.path:
     sys.path.insert(0, path)
 
 dist_dir = '/home/desgin/Dashboard-design/dist'
+zip_path = '/home/desgin/Dashboard-design/dist.zip'
+
+# Auto-extract zip if dist doesn't exist but zip does
+if not os.path.isdir(dist_dir) and os.path.isfile(zip_path):
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall('/home/desgin/Dashboard-design')
+        os.remove(zip_path)
+    except Exception as e:
+        pass
 
 def application(environ, start_response):
     path_info = environ.get('PATH_INFO', '/')
@@ -256,37 +271,52 @@ def clear_remote_directory():
         print(f"[X] Failed to clear directory: {e}")
         return False
 
-def upload_dist_directory():
-    print("[INFO] Uploading dist directory to remote...")
+def create_zip_from_dist():
+    """Create a zip file from the dist directory in memory"""
+    print("[INFO] Creating zip archive from dist directory...")
     dist_dir = PROJECT_ROOT / "dist"
-
+    
     if not dist_dir.exists():
         print(f"[X] Local dist directory not found: {dist_dir}")
-        return False
-
+        return None
+    
+    zip_buffer = io.BytesIO()
     file_count = 0
-    for root, dirs, files in os.walk(dist_dir):
-        for file in files:
-            local_path = Path(root) / file
-            relative_path = str(local_path.relative_to(dist_dir)).replace('\\', '/')
-            remote_path = f'/home/desgin/Dashboard-design/dist/{relative_path}'
+    
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+        for root, dirs, files in os.walk(dist_dir):
+            for file in files:
+                local_path = Path(root) / file
+                relative_path = str(local_path.relative_to(dist_dir)).replace('\\', '/')
+                zip_file.write(local_path, f"dist/{relative_path}")
+                file_count += 1
+    
+    zip_size = len(zip_buffer.getvalue())
+    zip_buffer.seek(0)
+    
+    print(f"[OK] Created zip archive: {file_count} files, {zip_size / 1024 / 1024:.2f} MB")
+    return zip_buffer
 
-            with open(local_path, 'rb') as f:
-                content = f.read()
-
-            if not upload_file(remote_path, content):
-                print(f"[X] Failed to upload: {relative_path}")
-                return False
-
-            file_count += 1
-            print(f"  Uploaded: {relative_path}")
-            
-            # Add delay between file uploads to avoid rate limiting
-            if file_count % 5 == 0:
-                print(f"  [INFO] Uploaded {file_count} files, pausing to avoid rate limit...")
-                time.sleep(3)
-
-    print(f"[OK] All {file_count} files uploaded")
+def upload_dist_directory():
+    """Upload dist directory as a single zip file, WSGI will auto-extract on first load"""
+    print("[INFO] Uploading dist directory to remote (zip method)...")
+    
+    zip_buffer = create_zip_from_dist()
+    if not zip_buffer:
+        return False
+    
+    zip_content = zip_buffer.read()
+    remote_zip_path = '/home/desgin/Dashboard-design/dist.zip'
+    
+    print(f"[INFO] Uploading zip file ({len(zip_content) / 1024 / 1024:.2f} MB)...")
+    
+    if not upload_file(remote_zip_path, zip_content):
+        print("[X] Failed to upload zip file")
+        return False
+    
+    print("[OK] Zip file uploaded successfully")
+    print("[INFO] WSGI will auto-extract on first web app reload")
+    
     return True
 
 def upload_file(remote_path, content, retries=3, delay=5):
