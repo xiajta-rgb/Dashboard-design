@@ -264,6 +264,7 @@ def upload_dist_directory():
         print(f"[X] Local dist directory not found: {dist_dir}")
         return False
 
+    file_count = 0
     for root, dirs, files in os.walk(dist_dir):
         for file in files:
             local_path = Path(root) / file
@@ -277,9 +278,15 @@ def upload_dist_directory():
                 print(f"[X] Failed to upload: {relative_path}")
                 return False
 
+            file_count += 1
             print(f"  Uploaded: {relative_path}")
+            
+            # Add delay between file uploads to avoid rate limiting
+            if file_count % 5 == 0:
+                print(f"  [INFO] Uploaded {file_count} files, pausing to avoid rate limit...")
+                time.sleep(3)
 
-    print("[OK] All files uploaded")
+    print(f"[OK] All {file_count} files uploaded")
     return True
 
 def upload_file(remote_path, content, retries=3, delay=5):
